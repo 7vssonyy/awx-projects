@@ -1,0 +1,33 @@
+---
+- name: Linux – Debian/Ubuntu focused playbook
+  hosts: ubuntu_servers
+  become: yes
+  tasks:
+    - name: Verify connectivity
+      ansible.builtin.ping:
+
+    - name: Add a system user
+      ansible.builtin.user:
+        name: appuser
+        system: yes
+        create_home: no
+        shell: /usr/sbin/nologin
+
+    - name: Install a package with apt
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+    - name: Restart the Apache service
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+
+    - name: Check that port 10050 is listening
+      ansible.builtin.wait_for:
+        port: 10050
+        host: "{{ inventory_hostname }}"
+        delay: 2
+        timeout: 120
+        state: started
