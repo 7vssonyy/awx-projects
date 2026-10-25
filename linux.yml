@@ -1,0 +1,33 @@
+---
+- name: Linux – Basic setup (ping, user, package, service, port 10050)
+  hosts: linux_servers
+  become: yes
+  tasks:
+    - name: Ping the host
+      ansible.builtin.ping:
+
+    - name: Create a user
+      ansible.builtin.user:
+        name: deploy
+        state: present
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+
+    - name: Install a package
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+    - name: Restart a service
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
+
+    - name: Wait for port 10050 to be open
+      ansible.builtin.wait_for:
+        port: 10050
+        host: "{{ inventory_hostname }}"
+        delay: 5
+        timeout: 300
+        state: started
